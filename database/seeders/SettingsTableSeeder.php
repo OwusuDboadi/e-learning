@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Setting;
 
 
+
 class SettingsTableSeeder extends Seeder
 {
     /**
@@ -14,11 +15,11 @@ class SettingsTableSeeder extends Seeder
     protected $settings = [
         [
             'key'                       =>  'site_name',
-            'value'                     =>  'E-Commerce Application',
+            'value'                     =>  'E-learning Application',
         ],
         [
             'key'                       =>  'site_title',
-            'value'                     =>  'E-Commerce',
+            'value'                     =>  'E-learning',
         ],
         [
             'key'                       =>  'default_email_address',
