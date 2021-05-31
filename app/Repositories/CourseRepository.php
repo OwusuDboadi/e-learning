@@ -1,28 +1,33 @@
 <?php
+
+
 namespace App\Repositories;
 
-use App\Models\Category;
+
+use App\Models\Course;
 use App\Traits\UploadAble;
 use Illuminate\Http\UploadedFile;
-use App\Contracts\CategoryContract;
+use App\Contracts\CourseContract;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Doctrine\Instantiator\Exception\InvalidArgumentException;
 
 /**
- * Class CategoryRepository
+ * Class CourseRepository
  *
  * @package \App\Repositories
  */
 
-class CategoryRepository extends BaseRepository implements CategoryContract
-{
+class CourseRepository extends BaseRepository implements CourseContract{
+
     use UploadAble;
+
     /**
-     * CategoryRepository constructor.
-     * @param Category $model
+     * CourseRepository constructor.
+     * @param Course $model
      */
-    public function __construct(Category $model)
+
+    public function __construct(Course $model)
     {
         parent::__construct($model);
         $this->model = $model;
@@ -34,38 +39,35 @@ class CategoryRepository extends BaseRepository implements CategoryContract
      * @param array $columns
      * @return mixed
      */
-
-    public function listCategories(string $order = 'id', string $sort = 'desc', array $columns = ['*'])
+    public function listCourses(string $order = 'id', string $sort = 'desc', array $columns = ['*'])
     {
         return $this->all($columns, $order, $sort);
     }
-
 
     /**
      * @param int $id
      * @return mixed
      * @throws ModelNotFoundException
      */
-    public function findCategoryById(int $id)
+    public function findCourseById(int $id)
     {
         try {
             return $this->findOneOrFail($id);
 
         } catch (ModelNotFoundException $e) {
-
             throw new ModelNotFoundException($e);
         }
     }
 
     /**
      * @param array $params
-     * @return Category|mixed
+     * @return Course|mixed
      */
-    public function createCategory(array $params)
+    public function createCourse($params)
     {
         try {
-
             $collection = collect($params);
+
             $image = null;
 
             if ($collection->has('image') && ($params['image'] instanceof  UploadedFile)) {
@@ -77,11 +79,11 @@ class CategoryRepository extends BaseRepository implements CategoryContract
 
             $merge = $collection->merge(compact('menu', 'image', 'featured'));
 
-            $category = new Category($merge->all());
+            $course = new Course($merge->all());
 
-            $category->save();
+            $course->save();
 
-            return $category;
+            return $course;
 
         } catch (QueryException $exception) {
             throw new InvalidArgumentException($exception->getMessage());
@@ -94,21 +96,21 @@ class CategoryRepository extends BaseRepository implements CategoryContract
      * @return mixed
      */
 
-    public function updateCategory(array $params)
-    {
-        $category = $this->findCategoryById($params['id']);
+    public function updateCourse(array $params){
+
+        $course =$this->findCourseById($params['id']);
 
         $collection = collect($params)->except('_token');
 
-        $image = $category->image;
+        $image = $course->image;
 
         if ($collection->has('image') && ($params['image'] instanceof  UploadedFile)) {
 
-            if ($category->image != null) {
-                $this->deleteOne($category->image);
+            if ($course->image != null) {
+                $this->deleteOne($course->image);
             }
 
-            $image = $this->uploadOne($params['image'], 'categories');
+            $image = $this->uploadOne($params['image'], 'courses');
         }
 
         $featured = $collection->has('featured') ? 1 : 0;
@@ -116,48 +118,35 @@ class CategoryRepository extends BaseRepository implements CategoryContract
 
         $merge = $collection->merge(compact('menu', 'image', 'featured'));
 
-        $category->update($merge->all());
+        $course->update($merge->all());
 
-        return $category;
+        return $course;
+
     }
 
     /**
      * @param $id
      * @return bool|mixed
      */
-
-    public function deleteCategory($id)
+    public function deleteCourse($id)
     {
-        $category = $this->findCategoryById($id);
+        $course = $this->findCourseById($id);
 
-        if ($category->image != null) {
-            $this->deleteOne($category->image);
+        if ($course->image != null) {
+            $this->deleteOne($course->image);
         }
 
-        $category->delete();
+        $course->delete();
 
-        return $category;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function treeList()
-    {
-        return Category::orderByRaw('-name ASC')
-            ->get()
-            ->nest()
-            ->listsFlattened('name');
+        return $course;
     }
 
     public function findBySlug($slug)
     {
-        return Category::with('products')
+        return Course::with('videos')
             ->where('slug', $slug)
             ->where('menu', 1)
             ->first();
     }
 
-
 }
-

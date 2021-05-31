@@ -22,6 +22,15 @@ Route::group(['prefix'  =>  'admin'], function () {
             Route::post('/update', 'App\Http\Controllers\Admin\CategoryController@update')->name('admin.categories.update');
             Route::get('/{id}/delete', 'App\Http\Controllers\Admin\CategoryController@delete')->name('admin.categories.delete');
         });
+
+        Route::group(['prefix'  =>   'courses'], function() {
+            Route::get('/', 'App\Http\Controllers\Admin\CourseController@index')->name('admin.courses.index');
+            Route::get('/create', 'App\Http\Controllers\Admin\CourseController@create')->name('admin.courses.create');
+            Route::post('/store', 'App\Http\Controllers\Admin\CourseController@store')->name('admin.courses.store');
+            Route::get('/{id}/edit', 'App\Http\Controllers\Admin\CourseController@edit')->name('admin.courses.edit');
+            Route::post('/update', 'App\Http\Controllers\Admin\CourseController@update')->name('admin.courses.update');
+            Route::get('/{id}/delete', 'App\Http\Controllers\Admin\CourseController@delete')->name('admin.courses.delete');
+        });
     });
 
 });

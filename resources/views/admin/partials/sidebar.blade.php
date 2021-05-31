@@ -42,5 +42,12 @@
                 <span class="app-menu__label">Categories</span>
             </a>
         </li>
+        <li>
+            <a class="app-menu__item {{ Route::currentRouteName() == 'admin.courses.index' ? 'active' : '' }}"
+               href="{{ route('admin.courses.index') }}">
+                <i class="app-menu__icon fa fa-tags"></i>
+                <span class="app-menu__label">Course</span>
+            </a>
+        </li>
     </ul>
 </aside>
