@@ -133,7 +133,7 @@ class CategoryRepository extends BaseRepository implements CategoryContract
         if ($category->image != null) {
             $this->deleteOne($category->image);
         }
-
+        $category->courses()->detach();
         $category->delete();
 
         return $category;

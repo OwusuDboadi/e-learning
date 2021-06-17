@@ -42,8 +42,11 @@ class Course extends Model
     }
 
     public function categories(){
-        return $this->belongsToMany(Category::class,'categories_courses','course_id', 'category_id');
+        return $this->belongsToMany(Category::class,'category_course','course_id', 'category_id');
     }
 
+    public function videos(){
+        return $this->belongsToMany(Video::class, 'course_video','course_id','video_id');
+    }
 
 }

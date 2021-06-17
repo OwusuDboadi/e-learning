@@ -114,6 +114,7 @@ class CategoryController extends BaseController
      */
     public function delete($id)
     {
+
         $category = $this->categoryRepository->deleteCategory($id);
 
         if (!$category) {

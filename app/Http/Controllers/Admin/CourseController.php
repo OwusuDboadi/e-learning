@@ -1,9 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Contracts\CategoryContract;
 use App\Contracts\CourseContract;
 use App\Http\Controllers\BaseController;
+use App\Models\Course;
+use App\Models\Video;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreCourseFormRequest;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Class CourseController
@@ -12,18 +17,16 @@ use Illuminate\Http\Request;
 
 class CourseController extends BaseController
 {
-    /**
-     * @var CourseContract
-     */
     protected $courseRepository;
 
-    /**
-     * CourseController constructor.
-     * @param CourseContract $courseRepository
-     */
-    public function __construct(CourseContract $courseRepository)
+
+    protected $categoryRepository;
+
+
+    public function __construct(CourseContract $courseRepository, CategoryContract $categoryRepository)
     {
         $this->courseRepository = $courseRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -42,9 +45,10 @@ class CourseController extends BaseController
     public function create()
     {
         $courses = $this->courseRepository->listCourses('id', 'asc');
+        $categories = $this->categoryRepository->listCategories('id','asc');
 
         $this->setPageTitle('Courses', 'Create Course');
-        return view('admin.courses.create', compact('courses'));
+        return view('admin.courses.create', compact('courses','categories'));
     }
 
     /**
@@ -52,19 +56,31 @@ class CourseController extends BaseController
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'name'      =>  'required|max:191',
-            'parent_id' =>  'required|not_in:0',
-            'image'     =>  'mimes:jpg,jpeg,png|max:1000'
-        ]);
+//    public function store(Request $request)
+//    {
+//        $this->validate($request, [
+//            'name'      =>  'required|max:191',
+//            'parent_id' =>  'required|not_in:0',
+//            'image'     =>  'mimes:jpg,jpeg,png|max:1000'
+//        ]);
+//
+//        $params = $request->except('_token');
+//
+//        $category = $this->courseRepository->createCourse($params);
+//
+//        if (!$category) {
+//            return $this->responseRedirectBack('Error occurred while creating course.', 'error', true, true);
+//        }
+//        return $this->responseRedirect('admin.courses.index', 'Course added successfully' ,'success',false, false);
+//    }
 
+    public function store(StoreCourseFormRequest $request)
+    {
         $params = $request->except('_token');
 
-        $category = $this->categoryRepository->createCategory($params);
+        $course= $this->courseRepository->createCourse($params);
 
-        if (!$category) {
+        if (!$course) {
             return $this->responseRedirectBack('Error occurred while creating course.', 'error', true, true);
         }
         return $this->responseRedirect('admin.courses.index', 'Course added successfully' ,'success',false, false);
@@ -78,23 +94,39 @@ class CourseController extends BaseController
     {
         $targetCourse = $this->courseRepository->findCourseById($id);
         $courses = $this->courseRepository->listCourses();
+        $categories = $this->categoryRepository->listCategories();
+        $videos = $targetCourse->videos()->get();
+
+
+        $selected = Course::find($id);
+      //  dd($videos);
 
         $this->setPageTitle('Course', 'Edit Course : '.$targetCourse->name);
-        return view('admin.courses.edit', compact('courses', 'targetCourse'));
+        return view('admin.courses.edit', compact('courses', 'targetCourse','categories','selected','videos'));
     }
 
     /**
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
+//     * @param Request $request
+//     * @return \Illuminate\Http\RedirectResponse
+//     * @throws \Illuminate\Validation\ValidationException
+//     */
     public function update(Request $request)
     {
         $this->validate($request, [
             'name'      =>  'required|max:191',
-            'parent_id' =>  'required|not_in:0',
             'image'     =>  'mimes:jpg,jpeg,png|max:1000'
         ]);
+
+//        $validator = Validator::make($request->all(),[
+//           'name'   => 'required|max:191',
+////           'image'  => 'mimes:jpg,jpeg,png,jfif|max:1000'
+//        ]);
+//
+//        if($validator->errors()){
+//
+//            dd($validator->errors());
+//            return $this->responseRedirectBack($validator->errors(), 'error', true, true);
+//        }
 
         $params = $request->except('_token');
 

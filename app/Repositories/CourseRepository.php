@@ -59,6 +59,10 @@ class CourseRepository extends BaseRepository implements CourseContract{
         }
     }
 
+
+
+
+
     /**
      * @param array $params
      * @return Course|mixed
@@ -71,7 +75,7 @@ class CourseRepository extends BaseRepository implements CourseContract{
             $image = null;
 
             if ($collection->has('image') && ($params['image'] instanceof  UploadedFile)) {
-                $image = $this->uploadOne($params['image'], 'categories');
+                $image = $this->uploadOne($params['image'], 'courses');
             }
 
             $featured = $collection->has('featured') ? 1 : 0;
@@ -82,6 +86,10 @@ class CourseRepository extends BaseRepository implements CourseContract{
             $course = new Course($merge->all());
 
             $course->save();
+
+            if ($collection->has('categories')) {
+                $course->categories()->sync($params['categories']);
+            }
 
             return $course;
 
@@ -98,13 +106,14 @@ class CourseRepository extends BaseRepository implements CourseContract{
 
     public function updateCourse(array $params){
 
-        $course =$this->findCourseById($params['id']);
+        $course =$this->findCourseById($params['course_id']);
 
         $collection = collect($params)->except('_token');
 
         $image = $course->image;
 
-        if ($collection->has('image') && ($params['image'] instanceof  UploadedFile)) {
+
+        if ($collection->has('image') && $params['image'] instanceof  UploadedFile) {
 
             if ($course->image != null) {
                 $this->deleteOne($course->image);
@@ -116,10 +125,15 @@ class CourseRepository extends BaseRepository implements CourseContract{
         $featured = $collection->has('featured') ? 1 : 0;
         $menu = $collection->has('menu') ? 1 : 0;
 
+
+
         $merge = $collection->merge(compact('menu', 'image', 'featured'));
 
         $course->update($merge->all());
 
+        if ($collection->has('categories')) {
+            $course->categories()->sync($params['categories']);
+        }
         return $course;
 
     }
@@ -131,15 +145,21 @@ class CourseRepository extends BaseRepository implements CourseContract{
     public function deleteCourse($id)
     {
         $course = $this->findCourseById($id);
+        try{
+            if ($course->image != null) {
+                $this->deleteOne($course->image);
+            }
 
-        if ($course->image != null) {
-            $this->deleteOne($course->image);
+            $course->categories()->detach();
+            $course->videos()->detach();
+            $course->delete();
+            return $course;
+        }catch (\Exception $exception){
+
+            return false;
         }
 
-        $course->delete();
-
-        return $course;
-    }
+        }
 
     public function findBySlug($slug)
     {

@@ -30,6 +30,12 @@ Route::group(['prefix'  =>  'admin'], function () {
             Route::get('/{id}/edit', 'App\Http\Controllers\Admin\CourseController@edit')->name('admin.courses.edit');
             Route::post('/update', 'App\Http\Controllers\Admin\CourseController@update')->name('admin.courses.update');
             Route::get('/{id}/delete', 'App\Http\Controllers\Admin\CourseController@delete')->name('admin.courses.delete');
+            Route::post('images/upload', 'App\Http\Controllers\Admin\CourseVideoController@upload')->name('admin.courses.videos.upload');
+            Route::get('images/{id}/delete', 'App\Http\Controllers\Admin\CourseVideoController@delete')->name('admin.courses.videos.delete');
+        });
+
+        Route::group(['prefix' => 'videos'], function (){
+            Route::get('/', 'App\Http\Controllers\Admin\VideoController@index')->name('admin.videos.index');
         });
     });
 

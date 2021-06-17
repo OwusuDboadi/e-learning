@@ -2,6 +2,8 @@
 
 namespace App\Contracts;
 
+use App\Models\Course;
+
 /**
  * Interface CategoryContract
  * @package App\Contracts
@@ -45,4 +47,11 @@ interface CourseContract{
      * @return mixed
      */
     public function findBySlug($slug);
+
+    /**
+     * @param array $params
+     * @return Course|mixed
+     */
+
+
 }
